@@ -188,15 +188,16 @@ def twx(data, dataRange=[], cmap='gray', mode=None, titles=None):
         dataRange = [dataRange]
 
     # at this moment dataRange should be list of lists
-    if len(dataRange[0]) == 0:  # case when dataRange [[]]
-        dataRange == [[0]]
-    
     for k,rng in enumerate(dataRange):
+        if len(rng) == 0:
+            rng = [0]
+            dataRange[k] = rng
+
         percent = -1
-    
+
         if len(rng) == 1:
             percent = rng[0]
-    
+
         if percent >= 0:
             dataRange[k] = list(np.percentile(images[k][0, :, :, :],
                                            (percent, 100-percent)).astype(np.float32))

@@ -231,6 +231,20 @@ class TestDataRange:
         assert len(fig.dataRange) == 2
         plt.close('all')
 
+    def test_per_image_datarange(self):
+        imgs = [np.random.rand(32, 32), np.random.rand(32, 32)]
+        twx(imgs, dataRange=[[],[2]])
+        fig = plt.gcf()
+        # [] -> default percentile 0 (full min/max)
+        assert fig.dataRanges[0] == [pytest.approx(imgs[0].min().astype(np.float32), abs=1e-5),
+                                      pytest.approx(imgs[0].max().astype(np.float32), abs=1e-5)]
+        # [2] -> percentile(2, 98)
+        expected_low = np.percentile(imgs[1], 2).astype(np.float32)
+        expected_high = np.percentile(imgs[1], 98).astype(np.float32)
+        assert fig.dataRanges[1][0] == pytest.approx(float(expected_low), abs=1e-5)
+        assert fig.dataRanges[1][1] == pytest.approx(float(expected_high), abs=1e-5)
+        plt.close('all')
+
     def test_range_extended_for_multiple_images(self):
         imgs = [np.random.rand(32, 32), np.random.rand(32, 32)]
         twx(imgs, dataRange=[0.1, 0.9])
