@@ -5,9 +5,9 @@ import matplotlib.pyplot as plt
 from unittest.mock import patch
 import pytest
 
-import twxtool._viewer as twx_module
-from twxtool import twx
-from twxtool._viewer import CyclicValues, TWXFigure
+import twxtools._viewer as twx_module
+from twxtools import twx
+from twxtools._viewer import CyclicValues, TWXFigure
 
 
 # --- Helper: run twx without bring_to_front (no AppKit in test) ---
