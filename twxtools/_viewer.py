@@ -25,29 +25,45 @@ import functools
 import logging
 
 def bring_to_front(fig):
-    import AppKit
     """
-    Bring a Matplotlib figure to front on macOS using AppKit (MacOSX backend).
-    Works with the MacOSX backend where .window is not available.
+    Bring a Matplotlib figure to front.
+    Supports MacOSX backend (via AppKit if available), TkAgg, and Qt backends.
+    Silently does nothing if the backend is unsupported or required libs are missing.
     """
-    # Make sure the figure is drawn at least once
     fig.canvas.draw()
-    # Get all application windows
-    app = AppKit.NSApplication.sharedApplication()
-    # Activate the application first
-    # NSApplicationActivationIgnoringOtherApps = 1
-    app.activateIgnoringOtherApps_(True)
-    
-    # windows = app.orderedWindows()
-    
-    # # Match by title (the simplest way)
-    # title = fig.canvas.manager.get_window_title()
-    # for w in windows:
-    #     if w.title() == title:
-    #         w.makeKeyAndOrderFront_(None)
-    #         break
-        
-        
+    backend = get_backend().lower()
+
+    if 'macosx' in backend:
+        try:
+            import importlib
+            AppKit = importlib.import_module('AppKit')
+            app = AppKit.NSApplication.sharedApplication()
+            app.activateIgnoringOtherApps_(True)
+        except ImportError:
+            pass
+    elif 'tk' in backend:
+        try:
+            win = fig.canvas.manager.window
+            win.lift()
+            win.attributes('-topmost', True)
+            win.after(200, lambda: win.attributes('-topmost', False))
+        except Exception:
+            pass
+    elif 'qt' in backend:
+        try:
+            win = fig.canvas.manager.window
+            win.raise_()
+            win.activateWindow()
+        except Exception:
+            pass
+    else:
+        try:
+            fig.canvas.manager.window.raise_()
+        except Exception:
+            pass
+
+
+
 def twx(data, dataRange=[], cmap='gray', mode=None, titles=None):
     """
     Display and quickly switch between input images/video sequences
