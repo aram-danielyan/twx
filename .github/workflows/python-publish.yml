@@ -31,9 +31,17 @@ jobs:
       - name: Build release distributions
         run: |
           # NOTE: put your own distribution build steps here.
-          python -m pip install build
+          # python -m pip install build
+          # python -m build
+          python -m pip install --upgrade build
+          rm -rf dist build *.egg-info
           python -m build
-
+          
+      - name: Inspect version and artifacts
+        run: |
+          grep '^version' pyproject.toml
+          ls -lah dist
+          
       - name: Upload distributions
         uses: actions/upload-artifact@v4
         with:
